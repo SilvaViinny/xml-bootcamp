@@ -31,6 +31,24 @@ function jsToXmlFile(filename, obj, cb) {
   fs.writeFile(filepath, xml, cb);
 }
 
+// Function to read in XML file and convert it to JSON
+function xmlFileToJs(filename, cb) {
+  var filepath = path.normalize(path.join(__dirname, filename));
+  fs.readFile(filepath, 'utf8', function(err, xmlStr) {
+    if (err) throw (err);
+    xml2js.parseString(xmlStr, {}, cb);
+  });
+}
+
+//Function to convert JSON to XML and save it
+function jsToXmlFile(filename, obj, cb) {
+  var filepath = path.normalize(path.join(__dirname, filename));
+  var builder = new xml2js.Builder();
+  var xml = builder.buildObject(obj);
+  fs.unlinkSync(filepath);
+  fs.writeFile(filepath, xml, cb);
+}
+
 router.get('/', function(req, res) {
 
     res.render('index');
@@ -48,6 +66,11 @@ router.get('/get/html', function(req, res) {
     var stylesheet = xmlParse(xsl); //Parsing our XSL file
 
     var result = xsltProcess(doc, stylesheet); //This does our XSL Transformation
+
+    xmlFileToJs('PaddysCafe.xml', function(err, result) {
+        if (err) throw (err);
+        console.log(result);
+    });
 
     res.end(result.toString()); //Send the result back to the user, but convert to type string first
 
